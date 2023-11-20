@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:listapratica/dummy_listmarketplace.dart';
-import 'package:listapratica/widget/liststile.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,7 +11,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final listsmarketplace = {...DUMMY_LISTMARKETPLACE};
     return Scaffold(
       drawer: NavigationDrawer(
         onDestinationSelected: (index) {
@@ -102,15 +100,6 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(
               height: 10,
             ),
-            Container(
-              height: 500,
-              child: ListView.builder(
-                itemCount: listsmarketplace.length,
-                itemBuilder: (ctx, i) => ListsTile(listMarketplace: listsmarketplace.values.elementAt(i)),
-
-                  
-                ),
-              ),
             
           ],
         ),
