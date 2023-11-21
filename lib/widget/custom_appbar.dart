@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:listapratica/widget/custom_circleavatar.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
@@ -13,11 +14,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.only(right: 8),
           child: GestureDetector(
-            child: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              child: const Text('A'),
-            ),
+            onTap: () {
+              Navigator.of(context).pushNamed('/profiler');
+            },
+            child: const CustomCircleAvatar()
           ),
         )
       ],
