@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:listapratica/screens/src/home/db_helper.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_navigationdrawer.dart';
@@ -124,16 +125,21 @@ class _HomePageState extends State<HomePage> {
               controller: _titleController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: "Produto",
+                labelText: "Produto",
+                hintText: "Digite o nome do produto",
               ),
             ),
             const SizedBox(height: 10),
             TextField(
               keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
               controller: _amountController,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: "Quantidade",
+                labelText: "Quantidade",
+                hintText: "Digite a quantidade do produto",
               ),
             ),
             const SizedBox(height: 10),
@@ -161,7 +167,10 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () => _addOrUpdateData(id),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
-                  child: Text(id == null ? "Adicionar Item" : "Atualizar", style: const TextStyle(fontSize: 16),),
+                  child: Text(
+                    id == null ? "Adicionar Item" : "Atualizar",
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
             ),
@@ -179,7 +188,10 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBottomSheet(null),
         icon: const Icon(Icons.edit),
-        label: const Text("Novo Item"),
+        label: const Text(
+          "Novo Produto",
+          style: TextStyle(fontSize: 16),
+        ),
       ),
       body: Container(
         child: _isLoading
@@ -194,10 +206,25 @@ class _HomePageState extends State<HomePage> {
                     leading: CircleAvatar(
                       backgroundColor: Theme.of(context).colorScheme.primary,
                       foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                      child: Text(_allData[index]['amount']),
+                      child: Text(
+                        _allData[index]['amount'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    title: Text(_allData[index]['title']),
-                    subtitle: Text(_allData[index]['desc']),
+                    title: Text(
+                      _allData[index]['title'],
+                      style: const TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                    subtitle: Text(
+                      _allData[index]['desc'],
+                      style: const TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -210,7 +237,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                         IconButton(
                           onPressed: () => _deleteData(_allData[index]['id']),
-                          icon: const Icon(Icons.delete),
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.red,
+                          ),
                         ),
                       ],
                     ),
