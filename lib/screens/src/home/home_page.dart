@@ -6,7 +6,7 @@ import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_navigationdrawer.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,17 +14,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _allData = [];
-
+  final List<String> _categories = [
+    '🥘 Alimentos em Geral',
+    '🥦 Feira',
+    '🧀 Frios',
+    '🥩 Açougue',
+    '🍞 Padaria',
+    '🧻 Higiene',
+    '🧹 Limpeza',
+    '🍻 Bebidas',
+    '❄️ Congelados',
+    '❓ Outros',
+  ];
   bool _isLoading = true;
 
-  //Get All Data From Database
-  void _refreshData() async {
-    final data = await SQLHelper.getAllData();
-    setState(() {
-      _allData = data;
-      _isLoading = false;
-    });
-  }
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
 
   @override
   void initState() {
@@ -32,47 +38,60 @@ class _HomePageState extends State<HomePage> {
     _refreshData();
   }
 
-  //Add Data
-  Future<void> _addData() async {
-    await SQLHelper.createData(
-      _titleController.text,
-      _descController.text,
-      _amountController.text,
-    );
-    _refreshData();
+  Future<void> _refreshData() async {
+    final data = await SQLHelper.getAllData();
+    setState(() {
+      _allData = data;
+      _isLoading = false;
+    });
   }
 
-  //Update Data
-  Future<void> _updateData(int id) async {
-    await SQLHelper.updateData(
-      id,
-      _titleController.text,
-      _descController.text,
-      _amountController.text,
-    );
+  Future<void> _addOrUpdateData(int? id) async {
+    if (id == null) {
+      await SQLHelper.createData(
+        _titleController.text,
+        _descController.text,
+        _amountController.text,
+      );
+    } else {
+      await SQLHelper.updateData(
+        id,
+        _titleController.text,
+        _descController.text,
+        _amountController.text,
+      );
+    }
+
+    _clearControllers();
     _refreshData();
+    Navigator.of(context).pop();
   }
 
-  //Delete Data
   void _deleteData(int id) async {
     await SQLHelper.deleteData(id);
+    _showSnackBar('Item Excluido');
+    _refreshData();
+  }
+
+  void _clearControllers() {
+    _titleController.text = '';
+    _descController.text = '';
+    _amountController.text = '';
+  }
+
+  void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         backgroundColor: Colors.redAccent,
         content: Text(
-          'Item Excluido',
+          message,
           textAlign: TextAlign.center,
         ),
       ),
     );
-    _refreshData();
   }
 
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
-
-  void showBottomSheet(int? id) async {
+  void _showBottomSheet(int? id) async {
     if (id != null) {
       final existingData =
           _allData.firstWhere((element) => element['id'] == id);
@@ -96,12 +115,8 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              id == null ? "Cadastrar Item" : "Atualizar Item",
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+            Text(id == null ? "Cadastrar Item" : "Atualizar Item"),
+            const SizedBox(height: 20),
             TextField(
               controller: _titleController,
               decoration: const InputDecoration(
@@ -109,9 +124,7 @@ class _HomePageState extends State<HomePage> {
                 hintText: "Produto",
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
             TextField(
               keyboardType: TextInputType.number,
               controller: _amountController,
@@ -120,40 +133,32 @@ class _HomePageState extends State<HomePage> {
                 hintText: "Quantidade",
               ),
             ),
-            const SizedBox(
-              height: 10,
-            ),
-            TextField(
-              controller: _descController,
+            const SizedBox(height: 10),
+            DropdownButtonFormField<String>(
+              value: _categories.isNotEmpty ? _categories[9] : 'Outros',
+              items: _categories.map((String category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                setState(() {
+                  _descController.text = value ?? '';
+                });
+              },
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "Categoria",
               ),
             ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: () async {
-                  if (id == null) {
-                    await _addData();
-                  }
-                  if (id != null) {
-                    await _updateData(id);
-                  }
-
-                  _titleController.text = "";
-                  _descController.text = "";
-                  _amountController.text = "";
-
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => _addOrUpdateData(id),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
-                  child: Text(
-                    id == null ? "Adicionar Item" : "Atualizar",
-                  ),
+                  child: Text(id == null ? "Adicionar Item" : "Atualizar"),
                 ),
               ),
             ),
@@ -169,7 +174,7 @@ class _HomePageState extends State<HomePage> {
       drawer: const CustomNavigationDrawer(),
       appBar: const CustomAppBar(),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => showBottomSheet(null),
+        onPressed: () => _showBottomSheet(null),
         icon: const Icon(Icons.edit),
         label: const Text("Novo Item"),
       ),
@@ -194,15 +199,14 @@ class _HomePageState extends State<HomePage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          onPressed: () {
-                            showBottomSheet(_allData[index]['id']);
-                          },
-                          icon: const Icon(Icons.edit),
+                          onPressed: () =>
+                              _showBottomSheet(_allData[index]['id']),
+                          icon: const Icon(
+                            Icons.edit,
+                          ),
                         ),
                         IconButton(
-                          onPressed: () {
-                            _deleteData(_allData[index]['id']);
-                          },
+                          onPressed: () => _deleteData(_allData[index]['id']),
                           icon: const Icon(Icons.delete),
                         ),
                       ],
