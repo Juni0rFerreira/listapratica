@@ -115,7 +115,10 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(id == null ? "Cadastrar Item" : "Atualizar Item"),
+            Text(
+              id == null ? "Cadastrar Item" : "Atualizar Item",
+              style: const TextStyle(fontSize: 20),
+            ),
             const SizedBox(height: 20),
             TextField(
               controller: _titleController,
@@ -158,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                 onPressed: () => _addOrUpdateData(id),
                 child: Padding(
                   padding: const EdgeInsets.all(18),
-                  child: Text(id == null ? "Adicionar Item" : "Atualizar"),
+                  child: Text(id == null ? "Adicionar Item" : "Atualizar", style: const TextStyle(fontSize: 16),),
                 ),
               ),
             ),

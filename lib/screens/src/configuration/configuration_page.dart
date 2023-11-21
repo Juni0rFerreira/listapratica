@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:listapratica/widget/custom_appbar.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({Key? key, required this.onThemeChanged})
@@ -18,21 +19,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ListaPrática'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              child: CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                child: const Text('A'),
-              ),
-            ),
-          )
-        ],
-      ),
+      appBar: const CustomAppBar(),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
         child: Column(
