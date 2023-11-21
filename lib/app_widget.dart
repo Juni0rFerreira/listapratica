@@ -3,6 +3,7 @@ import 'package:listapratica/src/configuration/configuration_page.dart';
 import 'package:listapratica/src/home/home_page.dart';
 import 'package:listapratica/src/profiler/profiler_page.dart';
 import 'package:listapratica/src/shared/themes/themes.dart';
+import 'package:listapratica/src/splash/splash_page.dart';
 
 class AppWidget extends StatefulWidget {
   const AppWidget({Key? key}) : super(key: key);
@@ -18,11 +19,12 @@ class AppWidgetState extends State<AppWidget> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      
       themeMode: _selectedTheme,
-      theme: lightTheme,
-      darkTheme: darkTheme,
+      theme: darkTheme,
       routes: {
-        '/': (context) => const HomePage(),
+        '/': (context) => const SplashPage(),
+        '/home': (context) => const HomePage(),
         '/profiler': (context) => const ProfilerPage(),
         '/config': (context) => ConfigurationPage(
           onThemeChanged: (themeMode) {
