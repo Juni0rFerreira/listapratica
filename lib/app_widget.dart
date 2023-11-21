@@ -1,9 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:listapratica/screens/src/configuration/configuration_page.dart';
 import 'package:listapratica/screens/src/home/home_page.dart';
 import 'package:listapratica/screens/src/shared/themes/themes.dart';
-import 'package:listapratica/screens/src/taskboard/taskboard_page.dart';
 
 class AppWidget extends StatefulWidget {
   const AppWidget({Key? key}) : super(key: key);
@@ -31,7 +29,6 @@ class AppWidgetState extends State<AppWidget> {
             });
           },
         ),
-        '/edit': (context) => const TaskBoardPage(),
       },
     );
   }

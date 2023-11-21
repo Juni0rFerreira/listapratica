@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:listapratica/screens/src/home/db_helper.dart';
+import 'package:listapratica/widget/custom_appbar.dart';
+import 'package:listapratica/widget/custom_navigationdrawer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -94,7 +96,9 @@ class _HomePageState extends State<HomePage> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(id == null ? "Cadastrar Item" : "Atualizar Item",),
+            Text(
+              id == null ? "Cadastrar Item" : "Atualizar Item",
+            ),
             const SizedBox(
               height: 20,
             ),
@@ -162,57 +166,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavigationDrawer(
-        onDestinationSelected: (index) {
-          if (index == 1) {
-            Navigator.of(context).pop();
-            Navigator.of(context).pushNamed('/config');
-          }
-        },
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 28, 16, 16),
-            child: Text(
-              'Opção',
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-          ),
-          NavigationDrawerDestination(
-            icon: const Icon(Icons.sync),
-            label: Row(
-              children: [
-                const Text('Sincronizar'),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  '20/11/2023 às 12:12',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          const NavigationDrawerDestination(
-            icon: Icon(Icons.settings),
-            label: Text('Configurações'),
-          ),
-        ],
-      ),
-      appBar: AppBar(
-        title: const Text('ListaPrática'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              child: CircleAvatar(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                child: const Text('A'),
-              ),
-            ),
-          )
-        ],
-      ),
+      drawer: const CustomNavigationDrawer(),
+      appBar: const CustomAppBar(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showBottomSheet(null),
         icon: const Icon(Icons.edit),
