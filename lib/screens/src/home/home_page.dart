@@ -27,7 +27,6 @@ class _HomePageState extends State<HomePage> {
     '❄️ Congelados',
     '❓ Outros',
   ];
-  bool _isLoading = true;
 
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
@@ -43,7 +42,6 @@ class _HomePageState extends State<HomePage> {
     final data = await SQLHelper.getAllData();
     setState(() {
       _allData = data;
-      _isLoading = false;
     });
   }
 
@@ -194,10 +192,15 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       body: Container(
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(),
-              )
+        child: _allData.isEmpty
+          ? Center(
+              child: Image.asset(
+                'assets/img/fundovazio.png',
+                width: 400,
+                height: 400,
+                fit: BoxFit.cover,
+              ),
+            )
             : ListView.builder(
                 itemCount: _allData.length,
                 itemBuilder: (context, index) => Card(
