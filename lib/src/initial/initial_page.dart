@@ -10,7 +10,7 @@ class InitialPage extends StatefulWidget {
 }
 
 class _InitialPageState extends State<InitialPage> {
-  final _controller = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,6 @@ class _InitialPageState extends State<InitialPage> {
               height: 50,
             ),
             TextFormField(
-              controller: _controller,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: "Apelido",
@@ -49,19 +48,32 @@ class _InitialPageState extends State<InitialPage> {
               ),
             ),
             const SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "E-mail",
+                hintText: "Digite seu e-mail",
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: "Senha",
+                hintText: "Digite sua senha",
+              ),
+            ),
+            const SizedBox(
               height: 50,
             ),
             OutlinedButton(
-              onPressed: () async {
-                final nickname = _controller.text.trim();
-
-                if (nickname.isNotEmpty) {
-                  // Salvar no banco de dados
-                  await SQLHelper.createData('title', 'desc', 'amount', nickname);
-
+              onPressed: () {
                   // Navegar para a tela /home
                   Navigator.of(context).pushNamed('/home');
-                }
               },
               child: const Text('Entrar'),
             ),
