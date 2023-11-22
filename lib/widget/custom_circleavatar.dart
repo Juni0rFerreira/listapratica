@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:listapratica/src/profiler/profiler_page.dart';
+import 'package:listapratica/src/configuration/configuration_page.dart';
 
 class CustomCircleAvatar extends StatelessWidget {
   final double? radius;

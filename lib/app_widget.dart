@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:listapratica/src/configuration/configuration_page.dart';
 import 'package:listapratica/src/home/home_page.dart';
-import 'package:listapratica/src/profiler/profiler_page.dart';
+import 'package:listapratica/src/initial/initial_page.dart';
 import 'package:listapratica/src/shared/themes/themes.dart';
 import 'package:listapratica/src/splash/splash_page.dart';
 
@@ -24,8 +24,8 @@ class AppWidgetState extends State<AppWidget> {
       theme: darkTheme,
       routes: {
         '/': (context) => const SplashPage(),
+        '/initial': (context) => const InitialPage(),
         '/home': (context) => const HomePage(),
-        '/profiler': (context) => const ProfilerPage(),
         '/config': (context) => ConfigurationPage(
           onThemeChanged: (themeMode) {
             setState(() {

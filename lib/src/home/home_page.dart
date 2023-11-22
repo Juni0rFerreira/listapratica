@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> {
                 fit: BoxFit.cover,
               ),
             )
-            : ListView.builder( 
+            : ListView.builder(
                 itemCount: _allData.length,
                 itemBuilder: (context, index) => Card(
                   margin: const EdgeInsets.all(15),

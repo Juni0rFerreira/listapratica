@@ -10,15 +10,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: const Text('ListaPrática'),
-      actions: [
+      actions: const [
         Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.of(context).pushNamed('/profiler');
-            },
-            child: const CustomCircleAvatar()
-          ),
+          padding: EdgeInsets.only(right: 8),
+          child: CustomCircleAvatar(),
         )
       ],
     );

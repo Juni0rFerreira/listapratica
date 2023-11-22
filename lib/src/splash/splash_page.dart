@@ -14,7 +14,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pop();
-      Navigator.of(context).pushNamed('/home');
+      Navigator.of(context).pushNamed('/initial');
     });
   }
 
