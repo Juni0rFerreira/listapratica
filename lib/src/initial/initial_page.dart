@@ -1,6 +1,10 @@
 // initial_page.dart
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
-import 'package:listapratica/src/home/db_helper.dart';
+import 'package:get/get.dart';
+import 'package:listapratica/src/home/home_page.dart';
+import 'package:listapratica/src/services/controller.dart';
 
 class InitialPage extends StatefulWidget {
   const InitialPage({Key? key}) : super(key: key);
@@ -10,72 +14,44 @@ class InitialPage extends StatefulWidget {
 }
 
 class _InitialPageState extends State<InitialPage> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
+  final UserController userController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Initial Page'),
+      ),
       body: Padding(
-        padding: const EdgeInsets.only(
-          right: 20,
-          left: 20,
-        ),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'Seja muito bem-vindo(a)!',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+            TextField(
+              controller: _nameController,
+              decoration: const InputDecoration(labelText: 'Name'),
             ),
-            const SizedBox(
-              height: 20,
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(labelText: 'Email'),
             ),
-            const Padding(
-              padding: EdgeInsets.only(left: 30, right: 30),
-              child: Text(
-                'Estamos felizes por tê-lo(a) conosco. Como podemos te chamar? Digite abaixo o nome que você prefere!',
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Apelido",
-                hintText: "Como podemos te chamar?",
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "E-mail",
-                hintText: "Digite seu e-mail",
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            TextFormField(
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Senha",
-                hintText: "Digite sua senha",
-              ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            OutlinedButton(
-              onPressed: () {
-                  // Navegar para a tela /home
-                  Navigator.of(context).pushNamed('/home');
+            ElevatedButton(
+              onPressed: () async {
+                String name = _nameController.text;
+                String email = _emailController.text;
+
+                userController.setUser(name, email);
+
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const HomePage(),
+                  ),
+                );
               },
-              child: const Text('Entrar'),
+              child: const Text('Enter'),
             ),
           ],
         ),

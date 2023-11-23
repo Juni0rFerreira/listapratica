@@ -2,9 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:listapratica/src/home/db_helper.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_navigationdrawer.dart';
+
+import '../services/controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,6 +17,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final UserController userController = Get.find();
   List<Map<String, dynamic>> _allData = [];
   final List<String> _categories = [
     '🥘 Alimentos em Geral',
@@ -32,10 +36,24 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _descController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
+  String displayedName = ''; // Adicione esta linha
+
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     _refreshData();
+  }
+
+  void _loadUserData() async {
+    DBHelper dbHelper = DBHelper();
+    User? user = await dbHelper.getUser();
+
+    if (user != null) {
+      setState(() {
+        userController.setUser(user.name, user.email);
+      });
+    }
   }
 
   Future<void> _refreshData() async {
@@ -182,7 +200,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: const CustomNavigationDrawer(),
-      appBar: const CustomAppBar(),
+      appBar: CustomAppBar(
+        displayedName: displayedName,
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBottomSheet(null),
         icon: const Icon(Icons.edit),
@@ -193,14 +213,14 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Container(
         child: _allData.isEmpty
-          ? Center(
-              child: Image.asset(
-                'assets/img/fundovazio.png',
-                width: 400,
-                height: 400,
-                fit: BoxFit.cover,
-              ),
-            )
+            ? Center(
+                child: Image.asset(
+                  'assets/img/fundovazio.png',
+                  width: 400,
+                  height: 400,
+                  fit: BoxFit.cover,
+                ),
+              )
             : ListView.builder(
                 itemCount: _allData.length,
                 itemBuilder: (context, index) => Card(

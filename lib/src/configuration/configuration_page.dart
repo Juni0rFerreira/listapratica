@@ -1,26 +1,69 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: use_build_context_synchronously, prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:listapratica/src/home/db_helper.dart';
+import 'package:listapratica/src/services/controller.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
-import 'package:listapratica/widget/custom_circleavatar.dart';
 
 class ConfigurationPage extends StatefulWidget {
-  const ConfigurationPage({Key? key, required this.onThemeChanged})
+  const ConfigurationPage(
+      {Key? key, required Null Function(dynamic themeMode) onThemeChanged})
       : super(key: key);
-
-  final void Function(ThemeMode themeMode) onThemeChanged;
 
   @override
   ConfigurationPageState createState() => ConfigurationPageState();
 }
 
-String firstName = 'Fulano';
-
 class ConfigurationPageState extends State<ConfigurationPage> {
   TextEditingController _newNameController = TextEditingController();
-  String displayedName = firstName; // Variável para armazenar o nome exibido
 
-  // Função para exibir o modal de alteração de nome
+  final UserController userController = Get.find();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBar(
+        displayedName: '${Get.find<UserController>().userName}',
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Obx(
+                () => Text(
+                  '${Get.find<UserController>().userName}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+              Obx(
+                () => Text(
+                  '${Get.find<UserController>().userEmail}',
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _showChangeNameModal();
+                },
+                child: const Text('Mudar Nome'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  //LOGICA
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+  }
+
   void _showChangeNameModal() {
     showModalBottomSheet(
       context: context,
@@ -29,11 +72,11 @@ class ConfigurationPageState extends State<ConfigurationPage> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Novo Nome',
-                style: Theme.of(context).textTheme.titleLarge,
+                style: TextStyle(fontSize: 20),
               ),
               const SizedBox(height: 20),
               TextField(
@@ -44,12 +87,12 @@ class ConfigurationPageState extends State<ConfigurationPage> {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  // Atualizar o nome quando o usuário confirmar
-                  setState(() {
-                    firstName = _newNameController.text;
-                    displayedName = firstName; // Atualizar a variável exibida
-                  });
+                onPressed: () async {
+                  String newName = _newNameController.text;
+                  await userController.setUser(
+                      newName, userController.userEmail.value);
+                  await DBHelper()
+                      .updateUserName(userController.userEmail.value, newName);
                   Navigator.pop(context);
                 },
                 child: const Text('Salvar'),
@@ -58,94 +101,6 @@ class ConfigurationPageState extends State<ConfigurationPage> {
           ),
         );
       },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Column(
-                children: [
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  const CustomCircleAvatar(
-                    radius: 60,
-                    textStyle: TextStyle(fontSize: 34),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Align(
-                    child: Text(
-                      displayedName, // Utilizar a variável atualizada
-                      style: const TextStyle(fontSize: 20),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const Divider(
-                    height: 50,
-                  ),
-                  const Align(
-                    child: Text(
-                      '"Transforme sua lista em magia, escolha com sabedoria, compre com consciência, e deixe a magia da organização transformar sua rotina!"',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const Divider(
-                    height: 50,
-                  ),
-                  Text(
-                    'Configuração',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _showChangeNameModal(); // Chamar a função ao clicar
-                    },
-                    child: const SizedBox(
-                      height: 50,
-                      child: Row(
-                        children: [
-                          Icon(Icons.person),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            'Alterar Nome',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 50,
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    child: const Text('Apagar dados'),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
