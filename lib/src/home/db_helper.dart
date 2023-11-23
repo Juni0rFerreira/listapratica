@@ -158,4 +158,16 @@ class DBHelper {
       whereArgs: [userEmail],
     );
   }
+
+  Future<void> updateUserEmail(String userEmail, String newEmail) async {
+  final Database db = await database;
+
+  await db.update(
+    'users',
+    {'email': newEmail},
+    where: 'email = ?',
+    whereArgs: [userEmail],
+  );
+}
+
 }
