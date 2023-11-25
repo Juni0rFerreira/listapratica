@@ -24,7 +24,7 @@ ThemeData get lightTheme => ThemeData(
         ),
       ),
       listTileTheme:
-        ListTileThemeData(iconColor: _darkColorScheme.primaryContainer)
+        ListTileThemeData(iconColor: _lightColorScheme.primaryContainer)
     );
 
 ThemeData get darkTheme => ThemeData(

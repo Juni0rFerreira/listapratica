@@ -1,16 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:listapratica/src/home/db_helper.dart';
 import 'package:listapratica/src/models/lists.dart';
-import 'package:listapratica/src/products/products_page.dart';
+import 'package:listapratica/src/screens/products/products_page.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_navigationdrawer.dart';
 import 'package:uuid/uuid.dart';
-
-import '../services/controller.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -38,29 +32,15 @@ class _HomePageState extends State<HomePage> {
     'Dezembro',
   ];
 
-  final UserController userController = Get.find();
-
-  
-
   String displayedName = ''; // Adicione esta linha
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
     refresh();
   }
 
-  void _loadUserData() async {
-    DBHelper dbHelper = DBHelper();
-    User? user = await dbHelper.getUser();
 
-    if (user != null) {
-      setState(() {
-        userController.setUser(user.name, user.email);
-      });
-    }
-  }
 
   showFormModal({Lists? model}) {
     // Labels à serem mostradas no Modal

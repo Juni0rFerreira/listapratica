@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:listapratica/src/helpers/enum_order.dart';
 import 'package:listapratica/src/models/lists.dart';
 import 'package:listapratica/src/models/product.dart';
+import 'package:listapratica/src/services/product_services.dart';
 import 'package:listapratica/widget/list_tile_produto.dart';
 import 'package:uuid/uuid.dart';
 
@@ -19,7 +20,7 @@ class ProductsPage extends StatefulWidget {
 class _ProductsPageState extends State<ProductsPage> {
   List<Product> listProductsPending = []; // Produtos Pendentes
   List<Product> listProductsPurchased = []; // Produtos Comprados
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
+  ProductService productService = ProductService();
 
   OrderProducts ordem = OrderProducts.product;
   bool isDescending = false;
@@ -96,71 +97,73 @@ class _ProductsPageState extends State<ProductsPage> {
       ),
       body: Container(
         child: (listProductsPending.isEmpty)
-              ? Center(
-                  child: Image.asset(
-                    'assets/img/fundovazio.png',
-                    width: 400,
-                    height: 400,
-                    fit: BoxFit.cover,
-                  ),
-                )
-              : RefreshIndicator(
-          onRefresh: () {
-            return refresh();
-          },
-          child: ListView(
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Divider(thickness: 2),
-              ),
-              const Text(
-                "Produtos Pendentes",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+            ? Center(
+                child: Image.asset(
+                  'assets/img/fundovazio.png',
+                  width: 400,
+                  height: 400,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : RefreshIndicator(
+                onRefresh: () {
+                  return refresh();
+                },
+                child: ListView(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Divider(thickness: 2),
+                    ),
+                    const Text(
+                      "Produtos Pendentes",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Column(
+                      children:
+                          List.generate(listProductsPending.length, (index) {
+                        Product product = listProductsPending[index];
+                        return ListTileProduto(
+                          product: product,
+                          isComprado: false,
+                          showModal: showFormModal,
+                          iconclick: changePurchased,
+                          deleteclick: deleteProduct,
+                        );
+                      }),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Divider(thickness: 2),
+                    ),
+                    const Text(
+                      "Produtos Comprados",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Column(
+                      children:
+                          List.generate(listProductsPurchased.length, (index) {
+                        Product produto = listProductsPurchased[index];
+                        return ListTileProduto(
+                          product: produto,
+                          isComprado: true,
+                          showModal: showFormModal,
+                          iconclick: changePurchased,
+                          deleteclick: deleteProduct,
+                        );
+                      }),
+                    ),
+                  ],
                 ),
               ),
-              Column(
-                children: List.generate(listProductsPending.length, (index) {
-                  Product product = listProductsPending[index];
-                  return ListTileProduto(
-                    product: product,
-                    isComprado: false,
-                    showModal: showFormModal,
-                    iconclick: changePurchased,
-                    deleteclick: deleteProduct,
-                  );
-                }),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Divider(thickness: 2),
-              ),
-              const Text(
-                "Produtos Comprados",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Column(
-                children: List.generate(listProductsPurchased.length, (index) {
-                  Product produto = listProductsPurchased[index];
-                  return ListTileProduto(
-                    product: produto,
-                    isComprado: true,
-                    showModal: showFormModal,
-                    iconclick: changePurchased,
-                    deleteclick: deleteProduct,
-                  );
-                }),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -211,7 +214,9 @@ class _ProductsPageState extends State<ProductsPage> {
             children: [
               Text(labelTitle,
                   style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               TextFormField(
                 controller: productsController,
                 keyboardType: TextInputType.name,
@@ -299,12 +304,8 @@ class _ProductsPageState extends State<ProductsPage> {
                         product.amount = double.parse(amountController.text);
                       }
 
-                      firestore
-                          .collection("listmonth")
-                          .doc(widget.lists.id)
-                          .collection("products")
-                          .doc(product.id)
-                          .set(product.toMap());
+                      productService.addProduct(
+                          listsId: widget.lists.id, product: product);
 
                       // Fechar o Modal
                       Navigator.pop(context);
@@ -321,22 +322,14 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   refresh({QuerySnapshot<Map<String, dynamic>>? snapshot}) async {
-    List<Product> temp = [];
+    List<Product> productsRead = await productService.readProducts(
+        listsId: widget.lists.id, ordem: ordem, isDescending: isDescending);
 
-    snapshot ??= await firestore
-        .collection("listmonth")
-        .doc(widget.lists.id)
-        .collection("products")
-        .orderBy(ordem.name, descending: isDescending)
-        .get();
-
-    checkChanges(snapshot);
-
-    for (var doc in snapshot.docs) {
-      Product product = Product.fromMap(doc.data());
-      temp.add(product);
+    if (snapshot != null) {
+      checkChanges(snapshot);
     }
-    filterProduct(temp);
+
+    filterProduct(productsRead);
   }
 
   filterProduct(List<Product> listProducts) {
@@ -360,24 +353,16 @@ class _ProductsPageState extends State<ProductsPage> {
   changePurchased(Product product) async {
     product.isComprado = !product.isComprado;
 
-    await firestore
-        .collection("listmonth")
-        .doc(widget.lists.id)
-        .collection("products")
-        .doc(product.id)
-        .update({"isComprado": product.isComprado});
+    await productService.toggleProduct(
+        listsId: widget.lists.id, product: product);
   }
 
   setupListeners() {
-    listener = firestore
-        .collection("listmonth")
-        .doc(widget.lists.id)
-        .collection("products")
-        .orderBy(ordem.name, descending: isDescending)
-        .snapshots()
-        .listen((snapshot) {
-      refresh(snapshot: snapshot);
-    });
+    listener = productService.connectStreamProduct(
+        refresh: refresh,
+        listsId: widget.lists.id,
+        ordem: ordem,
+        isDescending: isDescending);
   }
 
   checkChanges(QuerySnapshot<Map<String, dynamic>> snapshot) {
@@ -411,11 +396,7 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   deleteProduct(Product product) async {
-    await firestore
-        .collection("listmonth")
-        .doc(widget.lists.id)
-        .collection("products")
-        .doc(product.id)
-        .delete();
+    await productService.removeProduct(
+        listsId: widget.lists.id, product: product);
   }
 }

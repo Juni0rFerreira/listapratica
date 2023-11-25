@@ -1,9 +1,4 @@
-// ignore_for_file: use_build_context_synchronously, prefer_final_fields
-
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:listapratica/src/home/db_helper.dart';
-import 'package:listapratica/src/services/controller.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_circleavatar.dart';
 
@@ -17,16 +12,12 @@ class ConfigurationPage extends StatefulWidget {
 }
 
 class ConfigurationPageState extends State<ConfigurationPage> {
-  TextEditingController _newNameController = TextEditingController();
-  TextEditingController _newEmailController = TextEditingController();
-
-  final UserController userController = Get.find();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        displayedName: '${Get.find<UserController>().userName}',
+      appBar: const CustomAppBar(
+        displayedName: 'Chaperoso',
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -45,23 +36,21 @@ class ConfigurationPageState extends State<ConfigurationPage> {
                 const SizedBox(
                   height: 20,
                 ),
-                Obx(
-                  () => Text(
-                    '${Get.find<UserController>().userName}',
+                 const Text(
+                    "Chaperoso",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20),
+                    style: TextStyle(fontSize: 20),
                   ),
-                ),
+                
                 const SizedBox(
                   height: 5,
                 ),
-                Obx(
-                  () => Text(
-                    '${Get.find<UserController>().userEmail}',
+                 const Text(
+                    "junioredilsonferreira@hotmail.com",
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 18),
+                    style: TextStyle(fontSize: 18),
                   ),
-                ),
+                
                 const SizedBox(
                   height: 20,
                 ),
@@ -91,9 +80,7 @@ class ConfigurationPageState extends State<ConfigurationPage> {
                         child: const Text('Mudar Nome'),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          _showChangeEmailModal();
-                        },
+                        onPressed: () {},
                         child: const Text('Mudar E-mail'),
                       ),
                     ],
@@ -128,62 +115,14 @@ class ConfigurationPageState extends State<ConfigurationPage> {
                 style: TextStyle(fontSize: 20),
               ),
               const SizedBox(height: 20),
-              TextField(
-                controller: _newNameController,
-                decoration: const InputDecoration(
+              const TextField(
+                decoration: InputDecoration(
                   labelText: 'Digite o novo nome',
                 ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () async {
-                  String newName = _newNameController.text;
-                  await userController.setUser(
-                      newName, userController.userEmail.value);
-                  await DBHelper()
-                      .updateUserName(userController.userEmail.value, newName);
-                  Navigator.pop(context);
-                },
-                child: const Text('Salvar'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showChangeEmailModal() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Novo E-mail',
-                style: TextStyle(fontSize: 20),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller:
-                    _newEmailController, 
-                decoration: const InputDecoration(
-                  labelText: 'Digite o novo e-mail',
-                ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  String newEmail = _newEmailController.text;
-                  await DBHelper().updateUserEmail(
-                    userController.userEmail.value,
-                    newEmail,
-                  );
-                                    userController.setUser(
-                      userController.userName.value, newEmail);
+                onPressed: () {
                   Navigator.pop(context);
                 },
                 child: const Text('Salvar'),

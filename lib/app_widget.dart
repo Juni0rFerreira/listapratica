@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:listapratica/src/configuration/configuration_page.dart';
-import 'package:listapratica/src/home/home_page.dart';
-import 'package:listapratica/src/initial/initial_page.dart';
+import 'package:listapratica/src/screens/configuration/configuration_page.dart';
+import 'package:listapratica/src/screens/home/home_page.dart';
+import 'package:listapratica/src/screens/initial/initial_page.dart';
 import 'package:listapratica/src/shared/themes/themes.dart';
-import 'package:listapratica/src/splash/splash_page.dart';
+import 'package:listapratica/src/screens/splash/splash_page.dart';
 
 class AppWidget extends StatefulWidget {
   const AppWidget({Key? key}) : super(key: key);
