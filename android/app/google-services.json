@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "490663838309",
+    "project_id": "listapratica-9197d",
+    "storage_bucket": "listapratica-9197d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:490663838309:android:4bfabbc513c17cd0c77c8c",
+        "android_client_info": {
+          "package_name": "com.example.listapratica"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9L3uEnmZIDgWryQeWHEOssacxaC8xWDk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

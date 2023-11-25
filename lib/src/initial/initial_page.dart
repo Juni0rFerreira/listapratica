@@ -28,7 +28,7 @@ class _InitialPageState extends State<InitialPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(height: 50,),
+              const SizedBox(height: 50,),
               const Text(
                 'Seja muito bem-vindo(a)!',
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
@@ -76,7 +76,7 @@ class _InitialPageState extends State<InitialPage> {
                 height: 50,
               ),
               OutlinedButton(
-                style: ButtonStyle(minimumSize: MaterialStateProperty.all(Size(200,50))),
+                style: ButtonStyle(minimumSize: MaterialStateProperty.all(const Size(200,50))),
                 onPressed: () async {
                   String name = _nameController.text;
                   String email = _emailController.text;

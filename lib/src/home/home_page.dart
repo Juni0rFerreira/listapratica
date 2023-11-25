@@ -1,11 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:listapratica/src/home/db_helper.dart';
+import 'package:listapratica/src/models/lists.dart';
+import 'package:listapratica/src/products/products_page.dart';
 import 'package:listapratica/widget/custom_appbar.dart';
 import 'package:listapratica/widget/custom_navigationdrawer.dart';
+import 'package:uuid/uuid.dart';
 
 import '../services/controller.dart';
 
@@ -17,24 +20,27 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final UserController userController = Get.find();
-  List<Map<String, dynamic>> _allData = [];
-  final List<String> _categories = [
-    '🥘 Alimentos em Geral',
-    '🥦 Feira',
-    '🧀 Frios',
-    '🥩 Açougue',
-    '🍞 Padaria',
-    '🧻 Higiene',
-    '🧹 Limpeza',
-    '🍻 Bebidas',
-    '❄️ Congelados',
-    '❓ Outros',
+  List<Lists> listmonth = [];
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  final List<String> months = [
+    'Janeiro',
+    'Fevereiro',
+    'Março',
+    'Abril',
+    'Maio',
+    'Junho',
+    'Julho',
+    'Agosto',
+    'Setembro',
+    'Outubro',
+    'Novembro',
+    'Dezembro',
   ];
 
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _descController = TextEditingController();
-  final TextEditingController _amountController = TextEditingController();
+  final UserController userController = Get.find();
+
+  
 
   String displayedName = ''; // Adicione esta linha
 
@@ -42,7 +48,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUserData();
-    _refreshData();
+    refresh();
   }
 
   void _loadUserData() async {
@@ -56,172 +62,101 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _refreshData() async {
-    final data = await SQLHelper.getAllData();
-    setState(() {
-      _allData = data;
-    });
-  }
+  showFormModal({Lists? model}) {
+    // Labels à serem mostradas no Modal
+    String title = "Adicionar Lista";
+    String confirmationButton = "Salvar";
+    String skipButton = "Cancelar";
 
-  Future<void> _addOrUpdateData(int? id) async {
-  // Verificar se algum campo está vazio
-  if (_titleController.text.isEmpty ||
-      _descController.text.isEmpty ||
-      _amountController.text.isEmpty) {
-    _showAlertDialog('Preencha todos os campos');
-    return;
-  }
+    // Controlador do campo que receberá o nome do Listin
+    TextEditingController nameController = TextEditingController();
+    String selectedMonth = '';
 
-  if (id == null) {
-    await SQLHelper.createData(
-      _titleController.text,
-      _descController.text,
-      _amountController.text,
-    );
-  } else {
-    await SQLHelper.updateData(
-      id,
-      _titleController.text,
-      _descController.text,
-      _amountController.text,
-    );
-  }
-
-  _clearControllers();
-  _refreshData();
-  Navigator.of(context).pop();
-}
-
-void _showAlertDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Aviso'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
-  void _deleteData(int id) async {
-    await SQLHelper.deleteData(id);
-    _showSnackBar('Item Excluido');
-    _refreshData();
-  }
-
-  void _clearControllers() {
-    _titleController.text = '';
-    _descController.text = '';
-    _amountController.text = '';
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.redAccent,
-        content: Text(
-          message,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  void _showBottomSheet(int? id) async {
-    if (id != null) {
-      final existingData =
-          _allData.firstWhere((element) => element['id'] == id);
-      _titleController.text = existingData['title'];
-      _descController.text = existingData['desc'];
-      _amountController.text = existingData['amount'];
+    //Modificações
+    if (model != null) {
+      title = "Editando lista de ${model.month}";
+      nameController.text = model.month;
     }
 
+    // Função do Flutter que mostra o modal na tela
     showModalBottomSheet(
-      elevation: 5,
-      isScrollControlled: true,
       context: context,
-      builder: (_) => Container(
-        padding: EdgeInsets.only(
-          top: 30,
-          left: 15,
-          right: 15,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 50,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              id == null ? "Cadastrar Item" : "Atualizar Item",
-              style: const TextStyle(fontSize: 20),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: _titleController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Produto",
-                hintText: "Digite o nome do produto",
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              keyboardType: TextInputType.number,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly
-              ],
-              controller: _amountController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: "Quantidade",
-                hintText: "Digite a quantidade do produto",
-              ),
-            ),
-            const SizedBox(height: 10),
-            DropdownButtonFormField<String>(
-              
-              items: _categories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (String? value) {
-                setState(() {
-                  _descController.text = value ?? 'Outros';
-                });
-              },
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Categoria",
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => _addOrUpdateData(id),
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: Text(
-                    id == null ? "Adicionar Item" : "Atualizar",
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ),
-              ),
-            ),
-          ],
+
+      // Define que as bordas verticais serão arredondadas
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(24),
         ),
       ),
+      builder: (context) {
+        return Container(
+          height: MediaQuery.of(context).size.height,
+          padding: const EdgeInsets.all(32.0),
+
+          // Formulário com Título, Campo e Botões
+          child: ListView(
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              DropdownButtonFormField<String>(
+                items: months.map((String months) {
+                  return DropdownMenuItem<String>(
+                    value: months,
+                    child: Text(months),
+                  );
+                }).toList(),
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Mês",
+                ),
+                onChanged: (String? value) {
+                  setState(() {
+                    selectedMonth = value ?? '';
+                  });
+                },
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text(skipButton),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Lists lists = Lists(
+                          id: const Uuid().v1(),
+                          month: selectedMonth,
+                        );
+
+                        //id model
+
+                        if (model != null) {
+                          lists.id = model.id;
+                        }
+
+                        //Salvar Firestore
+                        firestore
+                            .collection("listmonth")
+                            .doc(lists.id)
+                            .set(lists.toMap());
+                        refresh();
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(confirmationButton)),
+                ],
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -233,77 +168,83 @@ void _showAlertDialog(String message) {
         displayedName: displayedName,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showBottomSheet(null),
+        onPressed: () => showFormModal(),
         icon: const Icon(Icons.edit),
         label: const Text(
-          "Novo Produto",
+          "Nova Lista",
           style: TextStyle(fontSize: 16),
         ),
       ),
       body: Padding(
         padding: const EdgeInsets.only(bottom: 80),
         child: Container(
-          child: _allData.isEmpty
-              ? Center(
-                  child: Image.asset(
-                    'assets/img/fundovazio.png',
-                    width: 400,
-                    height: 400,
-                    fit: BoxFit.cover,
-                  ),
+          child: (listmonth.isEmpty)
+              ? const Center(
+                  child: Text("Nenhuma lista criada")
                 )
-              : ListView.builder(
-                  itemCount: _allData.length,
-                  itemBuilder: (context, index) => Card(
-                    margin: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
-                        child: Text(
-                          _allData[index]['amount'],
-                          style: const TextStyle(
-                            fontSize: 16,
+              : RefreshIndicator(
+                  onRefresh: () {
+                    return refresh();
+                  },
+                  child: ListView(
+                    children: List.generate(listmonth.length, (index) {
+                      Lists model = listmonth[index];
+                      return Dismissible(
+                        key: ValueKey<Lists>(model),
+                        direction: DismissDirection.startToEnd,
+                        background: Container(
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.only(left: 12),
+                          color: Colors.red,
+                          child: const Icon(
+                            Icons.delete,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                      title: Text(
-                        _allData[index]['title'],
-                        style: const TextStyle(
-                          fontSize: 20,
+                        onDismissed: (direction) {
+                          remove(model);
+                        },
+                        child: ListTile(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProductsPage(lists: model)));
+                          },
+                          onLongPress: () {
+                            showFormModal(
+                              model: model,
+                            );
+                          },
+                          leading: const Icon(Icons.calendar_month),
+                          title: Text("Lista de ${model.month}"),
                         ),
-                      ),
-                      subtitle: Text(
-                        _allData[index]['desc'],
-                        style: const TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            onPressed: () =>
-                                _showBottomSheet(_allData[index]['id']),
-                            icon: const Icon(
-                              Icons.edit,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => _deleteData(_allData[index]['id']),
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.red,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                      );
+                    }),
                   ),
                 ),
         ),
       ),
     );
+  }
+
+  refresh() async {
+    List<Lists> temp = [];
+
+    QuerySnapshot<Map<String, dynamic>> snapshot =
+        await firestore.collection("listmonth").get();
+
+    for (var doc in snapshot.docs) {
+      temp.add(Lists.fromMap(doc.data()));
+    }
+    setState(() {
+      listmonth = temp;
+    });
+  }
+
+  void remove(Lists model) {
+    firestore.collection("listmonth").doc(model.id).delete();
+    refresh();
   }
 }
