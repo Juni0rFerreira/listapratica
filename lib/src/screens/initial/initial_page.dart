@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:listapratica/src/services/auth_service.dart';
 
 class InitialPage extends StatefulWidget {
   const InitialPage({super.key});
@@ -16,6 +17,8 @@ class _InitialPageState extends State<InitialPage> {
   bool isEntering = true;
 
   final _formKey = GlobalKey<FormState>();
+
+  AuthService authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +138,7 @@ class _InitialPageState extends State<InitialPage> {
                               ),
                               validator: (value) {
                                 if (value == null || value.length < 3) {
-                                  return "Insira um nome maior.";
+                                  return "Insira um name maior.";
                                 }
                                 return null;
                               },
@@ -180,23 +183,23 @@ class _InitialPageState extends State<InitialPage> {
   buttonSendClicked() {
     String email = _emailController.text;
     String password = _passwordController.text;
-    String nome = _nameController.text;
+    String name = _nameController.text;
 
     if (_formKey.currentState!.validate()) {
       if (isEntering) {
         _entrarUsuario(email: email, password: password);
       } else {
-        _criarUsuario(email: email, password: password, nome: nome);
+        _criarUsuario(email: email, password: password, name: name);
       }
     }
   }
 
   _entrarUsuario({required String email, required String password}) {
-    print("Entrar usuário $email, $password");
+    authService.enterUser(email: email, password: password);
   }
 
   _criarUsuario(
-      {required String email, required String password, required String nome}) {
-    print("Criar usuário $email, $password, $nome");
+      {required String email, required String password, required String name}) {
+    authService.registerUser(email: email, password: password, name: name);
   }
 }
