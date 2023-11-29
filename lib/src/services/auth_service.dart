@@ -7,15 +7,28 @@ class AuthService {
     print('Entrar Usuario');
   }
 
-  registerUser(
-      {required String email,
-      required String password,
-      required String name}) async {
-    UserCredential userCredential = await _firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password);
+  Future<String?> registerUser({
+    required String email,
+    required String password,
+    required String name,
+  }) async {
+    try {
+      UserCredential userCredential =
+          await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    await userCredential.user!.updateDisplayName(name);
-    
-    print('Funcionou Cadastro');
+      await userCredential.user!.updateDisplayName(name);
+
+      print('Funcionou Cadastro');
+    } on FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case "email-already-in-use":
+          return "O e-mail já esta em uso.";
+      }
+      return e.code;
+    }
+    return null;
   }
 }

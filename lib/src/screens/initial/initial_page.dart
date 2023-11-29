@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:listapratica/src/services/auth_service.dart';
+import 'package:listapratica/widget/custom_snackbar.dart';
 
 class InitialPage extends StatefulWidget {
   const InitialPage({super.key});
@@ -128,8 +129,8 @@ class _InitialPageState extends State<InitialPage> {
                               },
                             ),
                             const SizedBox(
-                      height: 10,
-                    ),
+                              height: 10,
+                            ),
                             TextFormField(
                               controller: _nameController,
                               decoration: const InputDecoration(
@@ -200,6 +201,22 @@ class _InitialPageState extends State<InitialPage> {
 
   _criarUsuario(
       {required String email, required String password, required String name}) {
-    authService.registerUser(email: email, password: password, name: name);
+    authService
+        .registerUser(
+      email: email,
+      password: password,
+      name: name,
+    )
+        .then((String? erro) {
+      if (erro == null) {
+        showSnackBar(
+          context: context,
+          mensagem: 'Conta criada com sucesso!',
+          isError: false,
+        );
+      } else {
+        showSnackBar(context: context, mensagem: erro);
+      }
+    });
   }
 }
