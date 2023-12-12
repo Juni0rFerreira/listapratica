@@ -104,8 +104,12 @@ class _InitialPageState extends State<InitialPage> {
                         return null;
                       },
                     ),
-                    const SizedBox(
-                      height: 10,
+                    Visibility(
+                      visible: isEntering,
+                      child: TextButton(
+                        onPressed: () {forgotMyPassword},
+                        child: const Text("Esqueci minha senha."),
+                      ),
                     ),
                     Visibility(
                         visible: !isEntering,
@@ -196,7 +200,19 @@ class _InitialPageState extends State<InitialPage> {
   }
 
   _entrarUsuario({required String email, required String password}) {
-    authService.enterUser(email: email, password: password);
+    authService
+        .enterUser(email: email, password: password)
+        .then((String? erro) {
+      if (erro == null) {
+        showSnackBar(
+          context: context,
+          mensagem: "Conta logada com sucesso",
+          isError: false,
+        );
+      } else {
+        showSnackBar(context: context, mensagem: erro);
+      }
+    });
   }
 
   _criarUsuario(
